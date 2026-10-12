@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const ticketRoutes = require('./routes/ticket.routes');
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ app.get('/health', (req, res) => {
     service: 'ai-ticket-management'
   });
 });
+
+app.use('/api/tickets', ticketRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
