@@ -2,7 +2,8 @@ const express = require('express');
 const ticketController = require('../controllers/ticket.controller');
 const {
   validateTicket,
-  validateTicketStatus
+  validateTicketStatus,
+  validateTicketDescription
 } = require('../middleware/ticket.validation');
 const authenticate = require('../middleware/authentication');
 const authorizeRoles = require('../middleware/authorization');
@@ -11,6 +12,12 @@ const router = express.Router();
 
 router.use(authenticate);
 
+router.post(
+  '/analyze',
+  authorizeRoles('analyze ticket descriptions', 'ADMIN', 'DEVELOPER'),
+  validateTicketDescription,
+  ticketController.analyzeTicketDescription
+);
 router.post(
   '/',
   authorizeRoles('create tickets', 'ADMIN', 'DEVELOPER'),

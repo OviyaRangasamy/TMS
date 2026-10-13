@@ -1,4 +1,5 @@
 const { buildPermissionError } = require('../utils/permissions');
+const { normalizeRole } = require('../utils/roles');
 
 const allowedRoles = new Set(['ADMIN', 'DEVELOPER', 'VIEWER']);
 
@@ -14,7 +15,8 @@ const authorizeRoles = (action, ...roles) => {
   }
 
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    const userRole = normalizeRole(req.user?.role);
+    if (!req.user || !roles.includes(userRole)) {
       return res.status(403).json({
         message: buildPermissionError(action, roles)
       });

@@ -7,9 +7,9 @@
       </div>
       <span
         class="role-badge"
-        [class.role-admin]="user.role === 'ADMIN'"
-        [class.role-developer]="user.role === 'DEVELOPER'"
-        [class.role-viewer]="user.role === 'VIEWER'"
+        [class.role-admin]="normalizeRole(user.role) === 'ADMIN'"
+        [class.role-developer]="normalizeRole(user.role) === 'DEVELOPER'"
+        [class.role-viewer]="normalizeRole(user.role) === 'VIEWER'"
       >
         {{ user.role }}
       </span>
@@ -23,17 +23,23 @@
       <p class="subtitle">Track ticket progress across your team.</p>
     </div>
     <div class="heading-actions">
-      <p class="drag-hint">Drag a ticket to update its status</p>
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        (click)="openCreateTicketDialog()"
-      >
-        Create Ticket
-      </button>
+      @if (canManageTickets) {
+        <p class="drag-hint">Drag a ticket to update its status</p>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="openCreateTicketDialog()"
+        >
+          Create Ticket
+        </button>
+      }
     </div>
   </header>
 
-  <app-kanban-board (ticketSelected)="openEditTicketDialog($event)" />
+  <app-kanban-board
+    [canEdit]="canManageTickets"
+    [canMove]="canManageTickets"
+    (ticketSelected)="openEditTicketDialog($event)"
+  />
 </section>

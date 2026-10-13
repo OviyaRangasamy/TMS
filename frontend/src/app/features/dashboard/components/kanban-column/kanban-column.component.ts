@@ -14,6 +14,8 @@ import { TicketCardComponent } from '../ticket-card/ticket-card.component';
   templateUrl: './kanban-column.component.html',
 })
 export class KanbanColumnComponent {
+  readonly canEdit = input(false);
+  readonly canMove = input(false);
   readonly status = input.required<TicketStatus>();
   readonly title = input.required<string>();
   readonly tickets = input.required<Ticket[]>();

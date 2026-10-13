@@ -18,10 +18,8 @@ Represents users who create, update, assign, or review tickets.
 - DEVELOPER
 - VIEWER
 
-New registrations default to `VIEWER` when no role is supplied. Registration
-role selection for non-administrators is enabled only when `NODE_ENV` is
-`development`. In other environments, only administrators can assign roles
-other than `VIEWER`.
+All new registrations create `VIEWER` users. Administrators can change user
+roles through the protected user-management APIs.
 
 ## Schema Intent
 The user model supports:

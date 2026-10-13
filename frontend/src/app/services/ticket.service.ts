@@ -2,10 +2,22 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { Ticket, TicketInput, TicketStatus } from '../models/ticket.model';
+import {
+  Ticket,
+  TicketInput,
+  TicketPriority,
+  TicketStatus,
+} from '../models/ticket.model';
 
 interface ApiResponse<T> {
   data: T;
+}
+
+export interface TicketDescriptionAnalysis {
+  priority: TicketPriority;
+  category: 'UI' | 'Backend' | 'Infrastructure' | 'Database' | 'Security' | 'Other';
+  aiSummary: string;
+  resolutionSuggestions: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -28,6 +40,15 @@ export class TicketService {
   createTicket(ticket: TicketInput): Observable<Ticket> {
     return this.http
       .post<ApiResponse<Ticket>>(this.ticketsUrl, ticket)
+      .pipe(map(({ data }) => data));
+  }
+
+  analyzeTicketDescription(description: string): Observable<TicketDescriptionAnalysis> {
+    return this.http
+      .post<ApiResponse<TicketDescriptionAnalysis>>(
+        `${this.ticketsUrl}/analyze`,
+        { description },
+      )
       .pipe(map(({ data }) => data));
   }
 

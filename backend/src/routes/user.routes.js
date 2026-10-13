@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(authenticate, authorizeRoles('manage users', 'ADMIN'));
 
 router.get('/', userController.getAllUsers);
+router.get('/:id', userController.getUserById);
 router.patch('/:id/role', userController.updateUserRole);
 
 module.exports = router;

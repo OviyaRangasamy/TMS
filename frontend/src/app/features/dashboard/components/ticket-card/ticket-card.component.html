@@ -1,9 +1,9 @@
 <mat-card
   class="ticket-card"
   appearance="outlined"
-  role="button"
-  tabindex="0"
-  [attr.aria-label]="'Edit ticket: ' + ticket().title"
+  [attr.role]="canEdit() ? 'button' : null"
+  [attr.tabindex]="canEdit() ? 0 : null"
+  [attr.aria-label]="canEdit() ? 'Edit ticket: ' + ticket().title : null"
   (click)="activate($event)"
   (keydown)="onKeydown($event)"
 >

@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
+const { normalizeRole } = require('../utils/roles');
 
 const SALT_ROUNDS = 12;
 const TOKEN_LIFETIME_SECONDS = 60 * 60;
@@ -26,7 +27,7 @@ const toPublicUser = (user) => ({
   id: user._id.toString(),
   name: user.name,
   email: user.email,
-  role: user.role
+  role: normalizeRole(user.role)
 });
 
 const createToken = (user) =>
@@ -40,7 +41,7 @@ const createToken = (user) =>
     }
   );
 
-const register = async ({ name, email, password, role = 'VIEWER' }) => {
+const register = async ({ name, email, password }) => {
   if (
     typeof name !== 'string'
     || name.trim().length === 0
@@ -49,10 +50,9 @@ const register = async ({ name, email, password, role = 'VIEWER' }) => {
     || typeof password !== 'string'
     || password.length < 12
     || Buffer.byteLength(password, 'utf8') > 72
-    || !['ADMIN', 'DEVELOPER', 'VIEWER'].includes(role)
   ) {
     throw new AuthServiceError(
-      'Provide a name, valid email, password between 12 and 72 UTF-8 bytes, and a valid role',
+      'Provide a name, valid email, and password between 12 and 72 UTF-8 bytes',
       400
     );
   }
@@ -68,7 +68,7 @@ const register = async ({ name, email, password, role = 'VIEWER' }) => {
     name: name.trim(),
     email: normalizedEmail,
     password: passwordHash,
-    role
+    role: 'VIEWER'
   });
 
   return {

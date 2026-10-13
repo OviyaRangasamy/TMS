@@ -1,0 +1,29 @@
+<section class="admin-dashboard" aria-labelledby="admin-dashboard-title">
+  <header class="page-heading">
+    <p class="eyebrow">Administration</p>
+    <h1 id="admin-dashboard-title">Dashboard</h1>
+    <p class="subtitle">Overview of users, roles, and tickets.</p>
+  </header>
+
+  @if (loading()) {
+    <p class="message" role="status">Loading dashboard…</p>
+  } @else if (metrics(); as totals) {
+    <div class="metrics-grid">
+      <mat-card appearance="outlined">
+        <mat-card-content><span>Total Users</span><strong>{{ totals.totalUsers }}</strong></mat-card-content>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <mat-card-content><span>Total Tickets</span><strong>{{ totals.totalTickets }}</strong></mat-card-content>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <mat-card-content><span>Total Admins</span><strong>{{ totals.totalAdmins }}</strong></mat-card-content>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <mat-card-content><span>Total Developers</span><strong>{{ totals.totalDevelopers }}</strong></mat-card-content>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <mat-card-content><span>Total Viewers</span><strong>{{ totals.totalViewers }}</strong></mat-card-content>
+      </mat-card>
+    </div>
+  }
+</section>

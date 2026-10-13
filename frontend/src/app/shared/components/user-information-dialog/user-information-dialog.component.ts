@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { User } from '../../../models/user.model';
 import { ROLE_PERMISSIONS } from '../../../models/role-permissions';
+import { normalizeRole } from '../../../models/role.utils';
 
 export type UserInformationDialogView = 'profile' | 'roles';
 
@@ -33,14 +34,22 @@ interface UserInformationDialogData {
               <dd>
                 <span
                   class="role-badge"
-                  [class.role-admin]="data.user.role === 'ADMIN'"
-                  [class.role-developer]="data.user.role === 'DEVELOPER'"
-                  [class.role-viewer]="data.user.role === 'VIEWER'"
+                  [class.role-admin]="normalizeRole(data.user.role) === 'ADMIN'"
+                  [class.role-developer]="normalizeRole(data.user.role) === 'DEVELOPER'"
+                  [class.role-viewer]="normalizeRole(data.user.role) === 'VIEWER'"
                 >
                   {{ data.user.role }}
                 </span>
               </dd>
             </dl>
+            <section class="profile-permissions">
+              <h3>Role permissions</h3>
+              <ul>
+                @for (permission of rolePermissions[data.user.role]; track permission) {
+                  <li>{{ permission }}</li>
+                }
+              </ul>
+            </section>
           </mat-card-content>
         </mat-card>
       } @else {
@@ -83,6 +92,23 @@ interface UserInformationDialogData {
 
     dd {
       margin: 0;
+    }
+
+    .profile-permissions {
+      border-top: 1px solid #e5e7eb;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+    }
+
+    .profile-permissions h3 {
+      color: #172554;
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .profile-permissions ul {
+      margin: 0.5rem 0 0;
+      padding-left: 1.25rem;
     }
 
     .role-badge {
@@ -129,6 +155,7 @@ interface UserInformationDialogData {
 })
 export class UserInformationDialogComponent {
   readonly data = inject<UserInformationDialogData>(MAT_DIALOG_DATA);
+  readonly normalizeRole = normalizeRole;
   readonly roles = Object.keys(ROLE_PERMISSIONS) as Array<
     keyof typeof ROLE_PERMISSIONS
   >;

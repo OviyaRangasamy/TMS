@@ -20,7 +20,12 @@ import {
   TicketPriority,
   TicketStatus,
 } from '../../../models/ticket.model';
-import { TicketService } from '../../../services/ticket.service';
+import {
+  TicketDescriptionAnalysis,
+  TicketService,
+} from '../../../services/ticket.service';
+import { AuthService } from '../../../services/auth.service';
+import { normalizeRole } from '../../../models/role.utils';
 
 @Component({
   imports: [
@@ -53,6 +58,9 @@ export class TicketDialogComponent {
   ];
   readonly saving = signal(false);
   readonly confirmingDelete = signal(false);
+  readonly analyzing = signal(false);
+  readonly analysis = signal<TicketDescriptionAnalysis | null>(null);
+  readonly analysisError = signal<string | null>(null);
 
   readonly form = inject(FormBuilder).nonNullable.group({
     title: [this.data?.title ?? '', [Validators.required, Validators.pattern(/\S/)]],
@@ -75,6 +83,7 @@ export class TicketDialogComponent {
   );
   private readonly snackBar = inject(MatSnackBar);
   private readonly ticketService = inject(TicketService);
+  private readonly authService = inject(AuthService);
 
   get isEditMode(): boolean {
     return this.data !== null;
@@ -82,6 +91,48 @@ export class TicketDialogComponent {
 
   get dataTitle(): string {
     return this.data?.title ?? 'this ticket';
+  }
+
+  get canDelete(): boolean {
+    return normalizeRole(this.authService.currentUser()?.role) === 'ADMIN';
+  }
+
+  clearAnalysis(): void {
+    this.analysis.set(null);
+    this.analysisError.set(null);
+  }
+
+  analyzeDescription(): void {
+    const description = this.form.controls.description.value.trim();
+    if (!description || this.analyzing()) {
+      return;
+    }
+
+    this.analyzing.set(true);
+    this.analysis.set(null);
+    this.analysisError.set(null);
+    this.ticketService
+      .analyzeTicketDescription(description)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.analyzing.set(false)),
+      )
+      .subscribe({
+        next: (analysis) => {
+          if (this.form.controls.description.value.trim() === description) {
+            this.analysis.set(analysis);
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          if (this.form.controls.description.value.trim() === description) {
+            this.analysisError.set(
+              error.status === 403
+                ? 'Your role is not authorized to use AI ticket analysis. Contact an administrator if you need access.'
+                : 'AI analysis could not be completed. Please try again.',
+            );
+          }
+        },
+      });
   }
 
   submit(): void {

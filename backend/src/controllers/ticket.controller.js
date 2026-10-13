@@ -1,4 +1,5 @@
 const ticketService = require('../services/ticket.service');
+const aiService = require('../services/ai.service');
 
 const allowedTicketFields = [
   'title',
@@ -38,6 +39,18 @@ const createTicket = async (req, res) => {
     });
     return res.status(201).json({ data: ticket });
   } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+const analyzeTicketDescription = async (req, res) => {
+  try {
+    const analysis = await aiService.analyzeTicketDescription(req.body.description);
+    return res.status(200).json({ data: analysis });
+  } catch (error) {
+    if (error.code === 'AI_INVALID_INPUT') {
+      return res.status(400).json({ message: error.message });
+    }
     return handleError(res, error);
   }
 };
@@ -98,6 +111,7 @@ const updateTicketStatus = async (req, res) => {
 
 module.exports = {
   createTicket,
+  analyzeTicketDescription,
   getAllTickets,
   getTicketById,
   updateTicket,

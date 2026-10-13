@@ -1,0 +1,58 @@
+.admin-layout {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  min-height: calc(100vh - 9rem);
+}
+
+.admin-sidebar {
+  align-self: start;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.25rem 0.75rem;
+}
+
+.sidebar-title {
+  color: #172554;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  padding: 0 0.75rem;
+}
+
+nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+nav a,
+nav button {
+  border-radius: 0.5rem;
+  color: #475569;
+  justify-content: flex-start;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+}
+
+nav a.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.admin-content {
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .admin-layout {
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-sidebar nav {
+    grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+  }
+}

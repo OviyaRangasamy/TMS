@@ -6,10 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import { UserRole } from '../../../../models/user.model';
 import { AuthService } from '../../../../services/auth.service';
 
 @Component({
@@ -18,7 +16,6 @@ import { AuthService } from '../../../../services/auth.service';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -29,12 +26,10 @@ import { AuthService } from '../../../../services/auth.service';
 export class RegisterComponent {
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly roles: readonly UserRole[] = ['ADMIN', 'DEVELOPER', 'VIEWER'];
   readonly form = inject(FormBuilder).nonNullable.group({
     name: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(12)]],
-    role: ['VIEWER' as UserRole, Validators.required],
   });
 
   private readonly authService = inject(AuthService);
@@ -47,7 +42,7 @@ export class RegisterComponent {
       return;
     }
 
-    const { name, email, password, role } = this.form.getRawValue();
+    const { name, email, password } = this.form.getRawValue();
     this.errorMessage.set(null);
     this.submitting.set(true);
     this.authService
@@ -55,7 +50,6 @@ export class RegisterComponent {
         name: name.trim(),
         email: email.trim(),
         password,
-        role,
       })
       .pipe(
         takeUntilDestroyed(this.destroyRef),

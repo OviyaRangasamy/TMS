@@ -60,6 +60,7 @@
           rows="4"
           maxlength="2000"
           required
+          (input)="clearAnalysis()"
         ></textarea>
         @if (form.controls.description.hasError('required')) {
           <mat-error>Description is required.</mat-error>
@@ -67,6 +68,37 @@
           <mat-error>Description cannot contain only spaces.</mat-error>
         }
       </mat-form-field>
+
+      <div class="ai-analysis-controls">
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="!form.controls.description.value.trim() || analyzing()"
+          (click)="analyzeDescription()"
+        >
+          {{ analyzing() ? 'Analyzing…' : 'Analyze with AI' }}
+        </button>
+        @if (analyzing()) {
+          <span role="status">Analyzing ticket description…</span>
+        }
+      </div>
+
+      @if (analysisError()) {
+        <p role="alert">{{ analysisError() }}</p>
+      }
+
+      @if (analysis(); as result) {
+        <section class="ai-analysis" aria-live="polite">
+          <h3>AI Analysis</h3>
+          <p><strong>Priority:</strong> {{ result.priority }}</p>
+          <p><strong>Category:</strong> {{ result.category }}</p>
+          <p><strong>Summary:</strong> {{ result.aiSummary }}</p>
+          <div>
+            <strong>Troubleshooting suggestions:</strong>
+            <pre>{{ result.resolutionSuggestions }}</pre>
+          </div>
+        </section>
+      }
 
       <div class="form-row">
         <mat-form-field appearance="outline">
@@ -113,7 +145,7 @@
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      @if (isEditMode) {
+      @if (isEditMode && canDelete) {
         <button
           mat-button
           color="warn"

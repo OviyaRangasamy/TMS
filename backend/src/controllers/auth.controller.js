@@ -1,5 +1,4 @@
 const authService = require('../services/auth.service');
-const USER_ROLES = ['ADMIN', 'DEVELOPER', 'VIEWER'];
 
 const cookieOptions = () => ({
   httpOnly: true,
@@ -24,30 +23,8 @@ const handleError = (res, error) => {
 };
 
 const register = async (req, res) => {
-  const requestedRole = req.body?.role;
-  const hasRequestedRole = requestedRole !== undefined;
-  if (hasRequestedRole && !USER_ROLES.includes(requestedRole)) {
-    return res.status(400).json({
-      message: 'Role must be ADMIN, DEVELOPER, or VIEWER'
-    });
-  }
-
-  if (
-    hasRequestedRole
-    && requestedRole !== 'VIEWER'
-    && req.user?.role !== 'ADMIN'
-    && process.env.NODE_ENV !== 'development'
-  ) {
-    return res.status(403).json({
-      message: 'Only administrators can assign elevated roles'
-    });
-  }
-
   try {
-    const result = await authService.register({
-      ...(req.body || {}),
-      role: hasRequestedRole ? requestedRole : 'VIEWER'
-    });
+    const result = await authService.register(req.body || {});
     if (!req.user) {
       res.cookie('access_token', result.token, cookieOptions());
     }

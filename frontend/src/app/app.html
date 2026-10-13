@@ -5,7 +5,7 @@
       <a routerLink="/dashboard" routerLinkActive="active">Board</a>
       <a routerLink="/tickets" routerLinkActive="active">Tickets</a>
       @if (authService.currentUser()?.role === 'ADMIN') {
-        <a routerLink="/users" routerLinkActive="active">Users</a>
+        <a routerLink="/admin" routerLinkActive="active">Admin Portal</a>
       }
     </nav>
 
@@ -31,6 +31,9 @@
       >
         Account
       </button>
+      <button mat-button type="button" (click)="logout()">
+        Logout
+      </button>
 
       <mat-menu #userMenu="matMenu">
         <button mat-menu-item type="button" (click)="openUserInformation('profile')">
@@ -38,9 +41,6 @@
         </button>
         <button mat-menu-item type="button" (click)="openUserInformation('roles')">
           Role Information
-        </button>
-        <button mat-menu-item type="button" (click)="logout()">
-          Logout
         </button>
       </mat-menu>
     }

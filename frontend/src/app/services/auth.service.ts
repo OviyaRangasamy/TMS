@@ -1,17 +1,22 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
   catchError,
+  concatWith,
   finalize,
+  ignoreElements,
   map,
   Observable,
   of,
   shareReplay,
+  switchMap,
   tap,
   throwError,
 } from 'rxjs';
 import { environment } from '../environments/environment';
 import { User, UserRole } from '../models/user.model';
+import { normalizeRole } from '../models/role.utils';
 
 interface ApiResponse<T> {
   data: T;
@@ -21,7 +26,6 @@ export interface RegisterInput {
   name: string;
   email: string;
   password: string;
-  role?: UserRole;
 }
 
 export interface LoginInput {
@@ -35,14 +39,22 @@ export class AuthService {
   private readonly authUrl = `${environment.apiBaseUrl}/auth`;
 
   readonly currentUser = signal<User | null>(null);
-  private sessionRestore$: Observable<User | null> | null = null;
+  readonly currentUser$ = toObservable(this.currentUser);
+  private currentUserRequest$: Observable<User | null> | null = null;
+  private sessionVersion = 0;
 
   login(credentials: LoginInput): Observable<User> {
     return this.http
       .post<ApiResponse<User>>(`${this.authUrl}/login`, credentials)
       .pipe(
-        map(({ data }) => data),
-        tap((user) => this.currentUser.set(user)),
+        tap(({ data }) => this.currentUser.set(this.normalizeApiUser(data))),
+        switchMap(() => this.refreshCurrentUser(true)),
+        map((user) => {
+          if (!user) {
+            throw new Error('Login succeeded but no authenticated user was returned');
+          }
+          return user;
+        }),
       );
   }
 
@@ -50,58 +62,82 @@ export class AuthService {
     return this.http
       .post<ApiResponse<User>>(`${this.authUrl}/register`, input)
       .pipe(
-        map(({ data }) => data),
-        tap((user) => {
-          if (!this.currentUser()) {
-            this.currentUser.set(user);
+        tap(({ data }) => this.currentUser.set(this.normalizeApiUser(data))),
+        switchMap(() => this.refreshCurrentUser(true)),
+        map((user) => {
+          if (!user) {
+            throw new Error('Registration succeeded but no authenticated user was returned');
           }
+          return user;
         }),
       );
   }
 
   restoreSession(): Observable<User | null> {
-    const currentUser = this.currentUser();
-    if (currentUser) {
-      return of(currentUser);
+    return this.refreshCurrentUser();
+  }
+
+  refreshCurrentUser(force = false): Observable<User | null> {
+    if (!force && this.currentUserRequest$) {
+      return this.currentUserRequest$;
     }
 
-    if (this.sessionRestore$) {
-      return this.sessionRestore$;
-    }
-
-    this.sessionRestore$ = this.http
+    const requestVersion = ++this.sessionVersion;
+    let request$: Observable<User | null>;
+    request$ = this.http
       .get<ApiResponse<User>>(`${this.authUrl}/me`)
       .pipe(
-        map(({ data }) => data),
-        tap((user) => this.currentUser.set(user)),
-        catchError((error: unknown) => {
-          this.currentUser.set(null);
-          if (
-            typeof error !== 'object'
-            || error === null
-            || !('status' in error)
-            || error.status !== 401
-          ) {
-            console.error('Failed to restore the authenticated session:', error);
+        map(({ data }) => this.normalizeApiUser(data)),
+        tap((user) => {
+          if (requestVersion === this.sessionVersion) {
+            this.currentUser.set(user);
           }
-          return of(null);
+        }),
+        catchError((error: unknown) => {
+          if (requestVersion === this.sessionVersion) {
+            this.currentUser.set(null);
+          }
+          if (error instanceof HttpErrorResponse && error.status === 401) {
+            return of(null);
+          }
+          return throwError(() => error);
         }),
         finalize(() => {
-          this.sessionRestore$ = null;
+          if (this.currentUserRequest$ === request$) {
+            this.currentUserRequest$ = null;
+          }
         }),
         shareReplay({ bufferSize: 1, refCount: false }),
       );
 
-    return this.sessionRestore$;
+    this.currentUserRequest$ = request$;
+    return request$;
+  }
+
+  private normalizeApiUser(apiUser: User): User {
+    const normalizedRole = normalizeRole(apiUser.role);
+    console.info('Authentication API role:', apiUser.role);
+    console.info('Normalized authentication role:', normalizedRole);
+    if (!normalizedRole) {
+      throw new Error(`Authentication API returned an unsupported role: ${apiUser.role}`);
+    }
+    return { ...apiUser, role: normalizedRole };
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.authUrl}/logout`, {}).pipe(
-      tap(() => this.currentUser.set(null)),
-      catchError((error: unknown) => {
-        this.currentUser.set(null);
-        return throwError(() => error);
-      }),
+    const logoutRequest = this.http
+      .post<void>(`${this.authUrl}/logout`, {})
+      .pipe(
+        catchError((error: unknown) =>
+          this.refreshCurrentUser(true).pipe(
+            ignoreElements(),
+            concatWith(throwError(() => error)),
+          ),
+        ),
+      );
+
+    return logoutRequest.pipe(
+      switchMap(() => this.refreshCurrentUser(true).pipe(map(() => undefined))),
     );
   }
 }

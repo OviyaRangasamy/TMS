@@ -35,12 +35,42 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'users',
+    path: 'admin',
     canActivate: [adminGuard],
+    runGuardsAndResolvers: 'always',
     loadComponent: () =>
-      import('./features/users/pages/user-list/user-list.component').then(
-        (module) => module.UserListComponent,
+      import('./features/admin/layout/admin-layout.component').then(
+        (module) => module.AdminLayoutComponent,
       ),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/admin/pages/admin-dashboard/admin-dashboard.component').then(
+            (module) => module.AdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/users/pages/user-list/user-list.component').then(
+            (module) => module.UserListComponent,
+          ),
+      },
+      {
+        path: 'tickets',
+        loadComponent: () =>
+          import('./features/dashboard/pages/dashboard/dashboard.component').then(
+            (module) => module.DashboardComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'users',
+    pathMatch: 'full',
+    redirectTo: 'admin/users',
   },
   { path: '**', redirectTo: 'dashboard' },
 ];

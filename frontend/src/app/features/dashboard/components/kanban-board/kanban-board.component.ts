@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  input,
   output,
   signal,
 } from '@angular/core';
@@ -29,6 +30,8 @@ import { KanbanColumnComponent } from '../kanban-column/kanban-column.component'
   templateUrl: './kanban-board.component.html',
 })
 export class KanbanBoardComponent implements OnInit {
+  readonly canEdit = input(false);
+  readonly canMove = input(false);
   readonly ticketSelected = output<Ticket>();
   readonly columns = KANBAN_COLUMNS;
   readonly tickets = signal<Ticket[]>([]);
@@ -49,7 +52,7 @@ export class KanbanBoardComponent implements OnInit {
   }
 
   onTicketDropped(event: CdkDragDrop<Ticket[], Ticket[], Ticket>): void {
-    if (event.previousContainer === event.container) {
+    if (!this.canMove() || event.previousContainer === event.container) {
       return;
     }
 

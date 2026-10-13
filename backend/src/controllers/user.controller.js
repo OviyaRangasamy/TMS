@@ -26,6 +26,22 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const getUserById = async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const user = await userService.getUserById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(200).json({ data: user });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
 const updateUserRole = async (req, res) => {
   const { role } = req.body || {};
   if (!USER_ROLES.includes(role)) {
@@ -36,6 +52,12 @@ const updateUserRole = async (req, res) => {
 
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  if (req.params.id.toLowerCase() === req.user.id.toLowerCase()) {
+    return res.status(403).json({
+      message: 'You cannot change your own role.'
+    });
   }
 
   try {
@@ -51,5 +73,6 @@ const updateUserRole = async (req, res) => {
 
 module.exports = {
   getAllUsers,
+  getUserById,
   updateUserRole
 };

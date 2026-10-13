@@ -50,6 +50,31 @@ th.mat-mdc-header-cell {
   padding: 1rem;
 }
 
+.role-badge {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-right: 0.65rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.role-admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.role-developer {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.role-viewer {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
 td mat-form-field {
   min-width: 9rem;
 }

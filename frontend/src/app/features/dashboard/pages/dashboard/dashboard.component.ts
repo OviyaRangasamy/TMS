@@ -7,6 +7,7 @@ import { KanbanBoardComponent } from '../../components/kanban-board/kanban-board
 import { TicketDialogComponent } from '../../../../shared/components/ticket-dialog/ticket-dialog.component';
 import { Ticket, TicketDialogResult } from '../../../../models/ticket.model';
 import { AuthService } from '../../../../services/auth.service';
+import { normalizeRole } from '../../../../models/role.utils';
 
 @Component({
   imports: [
@@ -28,11 +29,24 @@ export class DashboardComponent {
   private readonly snackBar = inject(MatSnackBar);
   readonly authService = inject(AuthService);
 
+  readonly normalizeRole = normalizeRole;
+
+  get canManageTickets(): boolean {
+    const role = normalizeRole(this.authService.currentUser()?.role);
+    return role === 'ADMIN' || role === 'DEVELOPER';
+  }
+
   openCreateTicketDialog(): void {
+    if (!this.canManageTickets) {
+      return;
+    }
     this.openTicketDialog();
   }
 
   openEditTicketDialog(ticket: Ticket): void {
+    if (!this.canManageTickets) {
+      return;
+    }
     this.openTicketDialog(ticket);
   }
 

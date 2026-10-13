@@ -36,9 +36,13 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.authService
-      .restoreSession()
+      .refreshCurrentUser(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+      .subscribe({
+        error: (error: unknown) => {
+          console.error('Failed to synchronize the authenticated session:', error);
+        },
+      });
   }
 
   openUserInformation(view: UserInformationDialogView): void {
