@@ -1,0 +1,100 @@
+:host {
+  display: block;
+}
+
+.ticket-card {
+  border-color: #e2e8f0;
+  border-radius: 0.55rem;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+  cursor: grab;
+  transition:
+    box-shadow 120ms ease,
+    border-color 120ms ease;
+}
+
+.ticket-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 9%);
+}
+
+.ticket-card:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.ticket-card:active {
+  cursor: grabbing;
+}
+
+.ticket-heading {
+  align-items: start;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+h3 {
+  color: #172554;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.saving-indicator {
+  color: #64748b;
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+}
+
+.ticket-details {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.priority {
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.22rem 0.5rem;
+}
+
+.priority--critical {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.priority--high {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.priority--medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.priority--low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.priority--unset {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.category {
+  color: #475569;
+  font-size: 0.75rem;
+}
+
+.updated {
+  color: #64748b;
+  font-size: 0.72rem;
+  margin: 0.9rem 0 0;
+}

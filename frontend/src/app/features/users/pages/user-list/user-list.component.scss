@@ -1,0 +1,72 @@
+.user-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.page-heading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 0.5rem 0 0;
+}
+
+.table-container {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+
+table {
+  min-width: 640px;
+  width: 100%;
+}
+
+th.mat-mdc-header-cell {
+  color: #475569;
+  font-weight: 700;
+}
+
+td.mat-mdc-cell,
+th.mat-mdc-header-cell {
+  padding: 1rem;
+}
+
+td mat-form-field {
+  min-width: 9rem;
+}
+
+.empty-state {
+  color: #64748b;
+  padding: 2rem;
+  text-align: center;
+}
+
+.message {
+  background: #fff;
+  border-radius: 0.5rem;
+  margin: 0;
+  padding: 1rem;
+}
+
+.error {
+  color: #b91c1c;
+}

@@ -14,10 +14,14 @@ Represents users who create, update, assign, or review tickets.
 - updatedAt: datetime
 
 ## Role Values
-- admin
-- manager
-- team-member
-- viewer
+- ADMIN
+- DEVELOPER
+- VIEWER
+
+New registrations default to `VIEWER` when no role is supplied. Registration
+role selection for non-administrators is enabled only when `NODE_ENV` is
+`development`. In other environments, only administrators can assign roles
+other than `VIEWER`.
 
 ## Schema Intent
 The user model supports:

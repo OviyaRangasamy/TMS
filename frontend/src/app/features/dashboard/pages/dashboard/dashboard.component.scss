@@ -1,0 +1,99 @@
+.dashboard {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.welcome-card {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+}
+
+.welcome-card .eyebrow {
+  margin-bottom: 0.35rem;
+}
+
+.welcome-card h2 {
+  color: #172554;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.role-badge {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 0.25rem 0.65rem;
+}
+
+.role-admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.role-developer {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.role-viewer {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.dashboard-heading {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.heading-actions {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.eyebrow {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  color: #172554;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 0.5rem 0 0;
+}
+
+.drag-hint {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin: 0 0 0.15rem;
+}
+
+@media (max-width: 600px) {
+  .dashboard-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .heading-actions {
+    align-items: start;
+    flex-direction: column;
+  }
+}

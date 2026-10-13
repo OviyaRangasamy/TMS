@@ -1,5 +1,21 @@
 const ticketService = require('../services/ticket.service');
 
+const allowedTicketFields = [
+  'title',
+  'description',
+  'priority',
+  'status',
+  'category',
+  'assignee'
+];
+
+const pickTicketFields = (body) =>
+  Object.fromEntries(
+    allowedTicketFields
+      .filter((field) => body[field] !== undefined)
+      .map((field) => [field, body[field]])
+  );
+
 const handleError = (res, error) => {
   const statusCode = error.statusCode
     || (error.name === 'ValidationError' || error.name === 'CastError' ? 400 : null)
@@ -16,7 +32,10 @@ const handleError = (res, error) => {
 
 const createTicket = async (req, res) => {
   try {
-    const ticket = await ticketService.createTicket(req.body);
+    const ticket = await ticketService.createTicket({
+      ...pickTicketFields(req.body),
+      createdBy: req.user.id
+    });
     return res.status(201).json({ data: ticket });
   } catch (error) {
     return handleError(res, error);
@@ -43,7 +62,10 @@ const getTicketById = async (req, res) => {
 
 const updateTicket = async (req, res) => {
   try {
-    const ticket = await ticketService.updateTicket(req.params.id, req.body);
+    const ticket = await ticketService.updateTicket(
+      req.params.id,
+      pickTicketFields(req.body)
+    );
     return res.status(200).json({ data: ticket });
   } catch (error) {
     return handleError(res, error);

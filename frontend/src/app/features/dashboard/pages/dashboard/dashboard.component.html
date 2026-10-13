@@ -1,0 +1,39 @@
+<section class="dashboard" aria-labelledby="dashboard-title">
+  @if (authService.currentUser(); as user) {
+    <section class="welcome-card" aria-label="Welcome">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h2>{{ user.name }}</h2>
+      </div>
+      <span
+        class="role-badge"
+        [class.role-admin]="user.role === 'ADMIN'"
+        [class.role-developer]="user.role === 'DEVELOPER'"
+        [class.role-viewer]="user.role === 'VIEWER'"
+      >
+        {{ user.role }}
+      </span>
+    </section>
+  }
+
+  <header class="dashboard-heading">
+    <div>
+      <p class="eyebrow">Workspace</p>
+      <h1 id="dashboard-title">Board</h1>
+      <p class="subtitle">Track ticket progress across your team.</p>
+    </div>
+    <div class="heading-actions">
+      <p class="drag-hint">Drag a ticket to update its status</p>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="openCreateTicketDialog()"
+      >
+        Create Ticket
+      </button>
+    </div>
+  </header>
+
+  <app-kanban-board (ticketSelected)="openEditTicketDialog($event)" />
+</section>

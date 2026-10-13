@@ -1,0 +1,52 @@
+<div class="app-shell">
+  <header class="app-header">
+    <a class="brand" routerLink="/dashboard">Ticket Management</a>
+    <nav aria-label="Main navigation">
+      <a routerLink="/dashboard" routerLinkActive="active">Board</a>
+      <a routerLink="/tickets" routerLinkActive="active">Tickets</a>
+      @if (authService.currentUser()?.role === 'ADMIN') {
+        <a routerLink="/users" routerLinkActive="active">Users</a>
+      }
+    </nav>
+
+    @if (authService.currentUser(); as user) {
+      <section class="user-profile" aria-label="User profile">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-email">{{ user.email }}</span>
+        <span
+          class="role-badge"
+          [class.role-admin]="user.role === 'ADMIN'"
+          [class.role-developer]="user.role === 'DEVELOPER'"
+          [class.role-viewer]="user.role === 'VIEWER'"
+        >
+          {{ user.role }}
+        </span>
+      </section>
+
+      <button
+        mat-button
+        type="button"
+        [matMenuTriggerFor]="userMenu"
+        aria-label="Open user menu"
+      >
+        Account
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item type="button" (click)="openUserInformation('profile')">
+          Profile
+        </button>
+        <button mat-menu-item type="button" (click)="openUserInformation('roles')">
+          Role Information
+        </button>
+        <button mat-menu-item type="button" (click)="logout()">
+          Logout
+        </button>
+      </mat-menu>
+    }
+  </header>
+
+  <main class="app-content">
+    <router-outlet />
+  </main>
+</div>

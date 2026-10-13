@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required']
+      required: [true, 'Password is required'],
+      select: false
     },
     role: {
       type: String,
@@ -28,7 +29,15 @@ const userSchema = new mongoose.Schema(
       }
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.password;
+        return ret;
+      }
+    }
+  }
 );
 
 module.exports = mongoose.model('User', userSchema);
