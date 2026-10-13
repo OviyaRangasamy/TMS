@@ -5,16 +5,16 @@ The AI Ticket Management System is a workflow-focused application modeled after 
 
 ## Architecture Style
 - Client-server architecture
-- Stateless backend APIs
-- NoSQL data store for flexible ticket records
-- External AI integration via OpenAI APIs
+- Express REST APIs with JWT-backed authentication
+- MongoDB persistence through Mongoose
+- External AI integration through Google Gemini, called by the backend
 - Modular frontend feature structure for scalable Angular development
 
 ## Components
 ### 1. Angular Frontend
 Responsibilities:
-- Render dashboard and ticket workspace
-- Manage board state, filters, and ticket forms
+- Render dashboard, ticket workspace, and ticket forms
+- Manage Kanban board state
 - Support drag-and-drop interactions
 - Invoke backend APIs for CRUD and AI assistance
 
@@ -28,27 +28,27 @@ Responsibilities:
 ### 3. Domain Services
 Responsibilities:
 - Ticket lifecycle management
-- Board movement logic
-- AI orchestration
-- Notification and enrichment handling
+- Ticket status updates
+- AI description-analysis orchestration
 
 ### 4. MongoDB Data Layer
 Responsibilities:
-- Persist tickets, comments, users, workflow states, and AI analysis output
-- Support search, filtering, and board retrieval
+- Persist ticket and user records
+- Store ticket status, priority, category, assignment, and timestamps
 
-### 5. OpenAI Integration
+### 5. Google Gemini Integration
 Responsibilities:
-- Summarize ticket details
-- Recommend priority based on title, description, urgency, and metadata
-- Assign category labels and confidence values
+- Analyze the supplied ticket description
+- Return a one- or two-sentence summary
+- Recommend priority and category
+- Return Markdown troubleshooting suggestions
 
 ## Integration Pattern
-The frontend does not call OpenAI directly. All AI requests are sent through the Express backend so the application can centralize authentication, validation, logging, and cost control.
+The frontend does not call Gemini directly. It sends the description to the authenticated `POST /api/tickets/analyze` endpoint. The Express backend validates the input, calls Gemini using the backend-only `API_KEY`, validates the structured result, and returns it to the frontend. The current response fields are `aiSummary`, `priority`, `category`, and `resolutionSuggestions`; the endpoint does not create a ticket or persist a separate analysis record.
 
 ## Non-Functional Requirements to Consider
 - Secure API communication
 - Role-aware access control for tickets and board actions
-- Auditability for ticket updates
+- Keep provider credentials on the backend
 - Clear error handling for AI failures
-- Response time monitoring for Kanban and AI interactions
+- Response time monitoring for Kanban and AI interactions (future operational work)

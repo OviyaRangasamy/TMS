@@ -34,10 +34,6 @@ import {
           @if (normalizeRole(authService.currentUser()?.role) === 'ADMIN') {
             <a routerLink="/admin/users" routerLinkActive="active">Users</a>
           }
-          <button mat-button type="button" (click)="openProfile('profile')">
-            Profile
-          </button>
-          <button mat-button type="button" (click)="logout()">Logout</button>
         </nav>
       </aside>
 

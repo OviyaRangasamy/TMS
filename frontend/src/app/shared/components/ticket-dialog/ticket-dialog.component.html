@@ -69,6 +69,11 @@
         }
       </mat-form-field>
 
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <input matInput formControlName="category" maxlength="80" />
+      </mat-form-field>
+
       <div class="ai-analysis-controls">
         <button
           mat-stroked-button
@@ -95,7 +100,32 @@
           <p><strong>Summary:</strong> {{ result.aiSummary }}</p>
           <div>
             <strong>Troubleshooting suggestions:</strong>
-            <pre>{{ result.resolutionSuggestions }}</pre>
+            <div class="suggestion-list" role="radiogroup" aria-label="Troubleshooting suggestions">
+              @for (suggestion of suggestions(); track $index) {
+                <label
+                  class="suggestion-option"
+                  [class.selected]="selectedSuggestion() === suggestion"
+                >
+                  <input
+                    type="radio"
+                    name="ticket-suggestion"
+                    [value]="suggestion"
+                    [checked]="selectedSuggestion() === suggestion"
+                    (change)="selectSuggestion(suggestion)"
+                  />
+                  <span>{{ suggestion }}</span>
+                </label>
+              }
+            </div>
+            <button
+              class="use-suggestion-button"
+              mat-stroked-button
+              type="button"
+              [disabled]="!selectedSuggestion()"
+              (click)="useSelectedSuggestion()"
+            >
+              Use Selected Suggestion
+            </button>
           </div>
         </section>
       }
@@ -121,11 +151,6 @@
           </mat-select>
         </mat-form-field>
       </div>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Category</mat-label>
-        <input matInput formControlName="category" maxlength="80" />
-      </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Assignee</mat-label>

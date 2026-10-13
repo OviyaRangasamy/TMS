@@ -2,15 +2,16 @@
 
 ```mermaid
 flowchart LR
-    U[Angular User Interface] -->|REST API| B[Express API Layer]
-    B -->|CRUD Operations| D[(MongoDB)]
-    B -->|AI Requests| A[OpenAI API]
-    U -->|Drag and Drop Events| B
-    B -->|Ticket Data + AI Results| U
+    U[Angular User Interface] -->|Authenticated REST requests| B[Express API Layer]
+    B -->|Ticket and user persistence via Mongoose| D[(MongoDB)]
+    B -->|POST /api/tickets/analyze| G[Google Gemini API]
+    G -->|Structured analysis result| B
+    B -->|Ticket data and analysis response| U
+    U -->|Drag and drop triggers status PATCH| B
 ```
 
 ## Diagram Notes
-- The frontend remains independent from the AI provider
-- The backend orchestrates API communication and domain logic boundaries
-- MongoDB persists ticket and workflow state
-- OpenAI provides summary and recommendation capabilities
+- The frontend does not call the AI provider directly.
+- The Express backend authenticates and authorizes analysis requests, validates descriptions, and validates Gemini's structured response.
+- The analysis response contains `aiSummary`, `priority`, `category`, and `resolutionSuggestions`; the result is returned to the UI and is not saved as a separate analysis record.
+- MongoDB persists tickets and users. Ticket status changes are sent to the backend through the status endpoint.

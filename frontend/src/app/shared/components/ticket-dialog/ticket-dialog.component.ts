@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -61,6 +61,10 @@ export class TicketDialogComponent {
   readonly analyzing = signal(false);
   readonly analysis = signal<TicketDescriptionAnalysis | null>(null);
   readonly analysisError = signal<string | null>(null);
+  readonly selectedSuggestion = signal<string | null>(null);
+  readonly suggestions = computed(() =>
+    this.parseSuggestions(this.analysis()?.resolutionSuggestions ?? ''),
+  );
 
   readonly form = inject(FormBuilder).nonNullable.group({
     title: [this.data?.title ?? '', [Validators.required, Validators.pattern(/\S/)]],
@@ -100,6 +104,7 @@ export class TicketDialogComponent {
   clearAnalysis(): void {
     this.analysis.set(null);
     this.analysisError.set(null);
+    this.selectedSuggestion.set(null);
   }
 
   analyzeDescription(): void {
@@ -121,6 +126,13 @@ export class TicketDialogComponent {
         next: (analysis) => {
           if (this.form.controls.description.value.trim() === description) {
             this.analysis.set(analysis);
+            this.selectedSuggestion.set(null);
+            if (
+              ['UI', 'Backend', 'Infrastructure', 'Database', 'Security', 'Other']
+                .includes(analysis.category)
+            ) {
+              this.form.controls.category.setValue(analysis.category);
+            }
           }
         },
         error: (error: HttpErrorResponse) => {
@@ -133,6 +145,21 @@ export class TicketDialogComponent {
           }
         },
       });
+  }
+
+  selectSuggestion(suggestion: string): void {
+    this.selectedSuggestion.set(suggestion);
+  }
+
+  useSelectedSuggestion(): void {
+    const suggestion = this.selectedSuggestion();
+    if (!suggestion || !this.suggestions().includes(suggestion)) {
+      return;
+    }
+
+    this.form.controls.description.setValue(suggestion);
+    this.form.controls.description.markAsDirty();
+    this.form.controls.description.updateValueAndValidity();
   }
 
   submit(): void {
@@ -217,5 +244,28 @@ export class TicketDialogComponent {
           );
         },
       });
+  }
+
+  private parseSuggestions(markdown: string): string[] {
+    const suggestions: string[] = [];
+    let currentSuggestion = '';
+
+    for (const line of markdown.split(/\r?\n/)) {
+      const listItem = line.match(/^\s*(?:[-*+]|\d+[.)])\s+(.+)$/);
+      if (listItem) {
+        if (currentSuggestion.trim()) {
+          suggestions.push(currentSuggestion.trim());
+        }
+        currentSuggestion = listItem[1];
+      } else if (currentSuggestion && line.trim()) {
+        currentSuggestion += `\n${line.trim()}`;
+      }
+    }
+
+    if (currentSuggestion.trim()) {
+      suggestions.push(currentSuggestion.trim());
+    }
+
+    return suggestions;
   }
 }

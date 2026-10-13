@@ -7,7 +7,10 @@ import {
   TicketDialogResult,
   TicketInput,
 } from '../../../models/ticket.model';
-import { TicketService } from '../../../services/ticket.service';
+import {
+  TicketDescriptionAnalysis,
+  TicketService,
+} from '../../../services/ticket.service';
 import { TicketDialogComponent } from './ticket-dialog.component';
 
 describe('TicketDialogComponent', () => {
@@ -16,7 +19,18 @@ describe('TicketDialogComponent', () => {
   let createTicket: (ticket: TicketInput) => Observable<Ticket>;
   let updateTicket: (id: string, ticket: TicketInput) => Observable<Ticket>;
   let deleteTicket: (id: string) => Observable<Ticket>;
+  let analyzeTicketDescription: (
+    description: string,
+  ) => Observable<TicketDescriptionAnalysis>;
   let closeDialog: (result: TicketDialogResult) => void;
+
+  const analysis: TicketDescriptionAnalysis = {
+    priority: 'HIGH',
+    category: 'Backend',
+    aiSummary: 'The API request is failing.',
+    resolutionSuggestions:
+      '1. Check the server logs for the failing request.\n2. Verify the API endpoint configuration.',
+  };
 
   const savedTicket: Ticket = {
     _id: '65f000000000000000000001',
@@ -37,6 +51,7 @@ describe('TicketDialogComponent', () => {
     createTicket = vi.fn(() => of(savedTicket));
     updateTicket = vi.fn(() => of(savedTicket));
     deleteTicket = vi.fn(() => of(savedTicket));
+    analyzeTicketDescription = vi.fn(() => of(analysis));
     closeDialog = vi.fn();
 
     await TestBed.configureTestingModule({
@@ -44,7 +59,12 @@ describe('TicketDialogComponent', () => {
       providers: [
         {
           provide: TicketService,
-          useValue: { createTicket, updateTicket, deleteTicket },
+          useValue: {
+            createTicket,
+            updateTicket,
+            deleteTicket,
+            analyzeTicketDescription,
+          },
         },
         { provide: MAT_DIALOG_DATA, useValue: null },
         { provide: MatDialogRef, useValue: { close: closeDialog } },
@@ -132,6 +152,30 @@ describe('TicketDialogComponent', () => {
       action: 'updated',
       ticket: savedTicket,
     });
+  });
+
+  it('applies a selected AI suggestion to the description without saving', () => {
+    createDialog();
+    component.form.controls.description.setValue('Original description');
+
+    component.analyzeDescription();
+
+    expect(component.form.controls.description.value).toBe('Original description');
+    expect(component.form.controls.category.value).toBe('Backend');
+    expect(component.suggestions()).toEqual([
+      'Check the server logs for the failing request.',
+      'Verify the API endpoint configuration.',
+    ]);
+
+    component.selectSuggestion(component.suggestions()[0]);
+    component.useSelectedSuggestion();
+
+    expect(component.form.controls.description.value).toBe(
+      'Check the server logs for the failing request.',
+    );
+    expect(component.form.controls.description.dirty).toBe(true);
+    expect(createTicket).not.toHaveBeenCalled();
+    expect(updateTicket).not.toHaveBeenCalled();
   });
 
   it('requires confirmation before deleting an edited ticket', () => {
