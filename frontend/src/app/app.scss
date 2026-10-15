@@ -1,0 +1,106 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-header {
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 2rem;
+  min-height: 4rem;
+  padding: 0 2rem;
+}
+
+.user-profile {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-left: auto;
+}
+
+.user-name {
+  color: #172554;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.user-email {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.role-badge {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 0.2rem 0.55rem;
+}
+
+.role-admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.role-developer {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.role-viewer {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.brand {
+  color: #172554;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+nav a {
+  color: #475569;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+nav a.active {
+  color: #1d4ed8;
+}
+
+.app-content {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 2rem;
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .user-profile {
+    align-items: flex-start;
+    margin-left: 0;
+  }
+
+  .app-content {
+    padding: 1rem;
+  }
+}

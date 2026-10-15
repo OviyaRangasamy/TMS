@@ -1,0 +1,31 @@
+<section class="kanban-column" [attr.aria-labelledby]="'column-' + status()">
+  <header class="column-header">
+    <h2 [id]="'column-' + status()">{{ title() }}</h2>
+    <span class="ticket-count" [attr.aria-label]="tickets().length + ' tickets'">
+      {{ tickets().length }}
+    </span>
+  </header>
+
+  <div
+    class="ticket-list"
+    cdkDropList
+    [id]="status()"
+    [cdkDropListData]="tickets()"
+    [cdkDropListDisabled]="!canMove()"
+    (cdkDropListDropped)="ticketDropped.emit($event)"
+  >
+    @for (ticket of tickets(); track ticket._id) {
+      <app-ticket-card
+        cdkDrag
+        [cdkDragData]="ticket"
+        [cdkDragDisabled]="!canMove() || pendingTicketIds().has(ticket._id)"
+        [canEdit]="canEdit()"
+        [ticket]="ticket"
+        [pending]="pendingTicketIds().has(ticket._id)"
+        (selected)="ticketSelected.emit($event)"
+      />
+    } @empty {
+      <p class="empty-column">Drop tickets here</p>
+    }
+  </div>
+</section>

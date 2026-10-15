@@ -1,0 +1,37 @@
+<mat-card
+  class="ticket-card"
+  appearance="outlined"
+  [attr.role]="canEdit() ? 'button' : null"
+  [attr.tabindex]="canEdit() ? 0 : null"
+  [attr.aria-label]="canEdit() ? 'Edit ticket: ' + ticket().title : null"
+  (click)="activate($event)"
+  (keydown)="onKeydown($event)"
+>
+  <mat-card-content>
+    <div class="ticket-heading">
+      <h3>{{ ticket().title }}</h3>
+      @if (pending()) {
+        <span class="saving-indicator" aria-label="Saving status">Saving…</span>
+      }
+    </div>
+
+    <div class="ticket-details">
+      <span
+        class="priority"
+        [class]="'priority priority--' + (ticket().priority ?? 'unset').toLowerCase()"
+      >
+        {{ ticket().priority ?? 'No priority' }}
+      </span>
+      <span class="category">{{ ticket().category ?? 'Uncategorized' }}</span>
+    </div>
+
+    <p class="updated">
+      Updated
+      @if (ticket().updatedAt) {
+        {{ ticket().updatedAt | date: 'mediumDate' }}
+      } @else {
+        <span>Not yet</span>
+      }
+    </p>
+  </mat-card-content>
+</mat-card>

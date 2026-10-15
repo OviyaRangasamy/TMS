@@ -1,0 +1,25 @@
+<section class="board-section" aria-label="Ticket board">
+  @if (loading()) {
+    <div class="board-message" role="status">Loading tickets…</div>
+  } @else if (loadError()) {
+    <div class="board-message error-message" role="alert">
+      <span>Tickets could not be loaded. Check the backend connection.</span>
+      <button mat-button type="button" (click)="reloadTickets()">Try again</button>
+    </div>
+  } @else {
+    <div class="board" cdkDropListGroup>
+      @for (column of columns; track column.status) {
+        <app-kanban-column
+          [status]="column.status"
+          [title]="column.title"
+          [tickets]="ticketsFor(column.status)"
+          [pendingTicketIds]="pendingTicketIds()"
+          [canEdit]="canEdit()"
+          [canMove]="canMove()"
+          (ticketDropped)="onTicketDropped($event)"
+          (ticketSelected)="ticketSelected.emit($event)"
+        />
+      }
+    </div>
+  }
+</section>

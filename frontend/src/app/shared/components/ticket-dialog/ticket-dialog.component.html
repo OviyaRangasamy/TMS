@@ -1,0 +1,201 @@
+<h2 mat-dialog-title>
+  @if (confirmingDelete()) {
+    Delete Ticket?
+  } @else {
+    {{ isEditMode ? 'Edit Ticket' : 'Create Ticket' }}
+  }
+</h2>
+
+@if (confirmingDelete()) {
+  <mat-dialog-content class="dialog-content">
+    <p>
+      This will permanently delete
+      <strong>{{ dataTitle }}</strong>. This action cannot be undone.
+    </p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button
+      mat-button
+      type="button"
+      [disabled]="saving()"
+      (click)="cancelDelete()"
+    >
+      Cancel
+    </button>
+    <button
+      mat-flat-button
+      color="warn"
+      type="button"
+      [disabled]="saving()"
+      (click)="confirmDelete()"
+    >
+      {{ saving() ? 'Deleting…' : 'Delete Ticket' }}
+    </button>
+  </mat-dialog-actions>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-dialog-content class="dialog-content">
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input
+          matInput
+          formControlName="title"
+          maxlength="120"
+          autocomplete="off"
+          required
+        />
+        @if (form.controls.title.hasError('required')) {
+          <mat-error>Title is required.</mat-error>
+        } @else if (form.controls.title.hasError('pattern')) {
+          <mat-error>Title cannot contain only spaces.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="4"
+          maxlength="2000"
+          required
+          (input)="clearAnalysis()"
+        ></textarea>
+        @if (form.controls.description.hasError('required')) {
+          <mat-error>Description is required.</mat-error>
+        } @else if (form.controls.description.hasError('pattern')) {
+          <mat-error>Description cannot contain only spaces.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <input matInput formControlName="category" maxlength="80" />
+      </mat-form-field>
+
+      <div class="ai-analysis-controls">
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="!form.controls.description.value.trim() || analyzing()"
+          (click)="analyzeDescription()"
+        >
+          {{ analyzing() ? 'Analyzing…' : 'Analyze with AI' }}
+        </button>
+        @if (analyzing()) {
+          <span role="status">Analyzing ticket description…</span>
+        }
+      </div>
+
+      @if (analysisError()) {
+        <p role="alert">{{ analysisError() }}</p>
+      }
+
+      @if (analysis(); as result) {
+        <section class="ai-analysis" aria-live="polite">
+          <h3>AI Analysis</h3>
+          <p><strong>Priority:</strong> {{ result.priority }}</p>
+          <p><strong>Category:</strong> {{ result.category }}</p>
+          <p><strong>Summary:</strong> {{ result.aiSummary }}</p>
+          <div>
+            <strong>Troubleshooting suggestions:</strong>
+            <div class="suggestion-list" role="radiogroup" aria-label="Troubleshooting suggestions">
+              @for (suggestion of suggestions(); track $index) {
+                <label
+                  class="suggestion-option"
+                  [class.selected]="selectedSuggestion() === suggestion"
+                >
+                  <input
+                    type="radio"
+                    name="ticket-suggestion"
+                    [value]="suggestion"
+                    [checked]="selectedSuggestion() === suggestion"
+                    (change)="selectSuggestion(suggestion)"
+                  />
+                  <span>{{ suggestion }}</span>
+                </label>
+              }
+            </div>
+            <button
+              class="use-suggestion-button"
+              mat-stroked-button
+              type="button"
+              [disabled]="!selectedSuggestion()"
+              (click)="useSelectedSuggestion()"
+            >
+              Use Selected Suggestion
+            </button>
+          </div>
+        </section>
+      }
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority" required>
+            @for (priority of priorities; track priority) {
+              <mat-option [value]="priority">{{ priority }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status" required>
+            @for (status of statuses; track status) {
+              <mat-option [value]="status">
+                {{ status.replace('_', ' ') }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Assignee</mat-label>
+        <input
+          matInput
+          formControlName="assignee"
+          autocomplete="off"
+          aria-describedby="assignee-hint"
+        />
+        <mat-hint id="assignee-hint">
+          Enter the assignee's MongoDB user ID.
+        </mat-hint>
+        @if (form.controls.assignee.hasError('pattern')) {
+          <mat-error>Enter a valid 24-character MongoDB user ID.</mat-error>
+        }
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      @if (isEditMode && canDelete) {
+        <button
+          mat-button
+          color="warn"
+          type="button"
+          [disabled]="saving()"
+          (click)="requestDeleteConfirmation()"
+        >
+          Delete
+        </button>
+      }
+      <button mat-button type="button" [disabled]="saving()" mat-dialog-close>
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="saving()"
+      >
+        @if (saving()) {
+          {{ isEditMode ? 'Updating…' : 'Creating…' }}
+        } @else {
+          {{ isEditMode ? 'Update Ticket' : 'Create Ticket' }}
+        }
+      </button>
+    </mat-dialog-actions>
+  </form>
+}
